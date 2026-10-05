@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MetroCert App — Relevés vers certificat</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="bandeau">Exemple prérempli : données fictives, sans valeur de certificat réel</div>
+<div class="ruler" aria-hidden="true"></div>
+<main>
+  <h1>MetroCert App</h1>
+  <p>Saisissez vos relevés une seule fois : l’erreur et la conformité sont calculées, le certificat est prêt à imprimer.</p>
+
+  <form id="form" novalidate>
+    <section class="panel">
+      <h2>Instrument et client</h2>
+      <div class="grille">
+        <label>Client <input name="client" required value="Société Sénégalaise de Boissons (fictive)"></label>
+        <label>Instrument <input name="instrument" required value="Manomètre à cadran 0–10 bar"></label>
+        <label>N° de série <input name="serie" required value="MAN-2026-001"></label>
+        <label>Famille
+          <select name="famille">
+            <option value="pression" selected>Pression</option>
+            <option value="temperature">Température</option>
+            <option value="masse">Masse</option>
+          </select></label>
+        <label>Date d’étalonnage <input name="date" type="date" required value="2026-10-05"></label>
+        <label>Étalon de référence <input name="etalon" required value="Contrôleur de pression CP-17 (fictif), certificat n° ET-0042"></label>
+        <label>EMT (± erreur maximale tolérée) <input name="emt" type="number" step="any" min="0" required value="0.1"></label>
+        <label>Incertitude élargie U (k = 2) <input name="incertitude" type="number" step="any" min="0" required value="0.02"></label>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>Relevés</h2>
+      <div class="lignes" id="lignes"></div>
+      <div class="actions"><button type="button" class="sec" id="ajouter">+ Ajouter un point</button></div>
+    </section>
+
+    <p class="err" id="erreur" role="alert"></p>
+    <div class="actions"><button type="submit">Générer le certificat</button></div>
+  </form>
+</main>
+<script>
+const EXEMPLE = [[0, 0], [2.5, 2.52], [5, 5.04], [7.5, 7.47], [10, 10.13]];
+const lignes = document.getElementById('lignes');
+const famille = () => document.querySelector('[name=famille]').value;
+const UNITES = { pression: 'bar', temperature: '°C', masse: 'kg' };
+
+function ajouter(ref = '', lec = '') {
+  const d = document.createElement('div');
+  d.className = 'ligne';
+  d.innerHTML = '<label>Référence <input type="number" step="any" class="ref" required></label>' +
+    '<label>Lecture <input type="number" step="any" class="lec" required></label>' +
+    '<label>Unité <input class="uni" required></label>' +
+    '<button type="button" class="sec" aria-label="Supprimer ce point">×</button>';
+  d.querySelector('.ref').value = ref;
+  d.querySelector('.lec').value = lec;
+  d.querySelector('.uni').value = UNITES[famille()];
+  d.querySelector('button').onclick = () => d.remove();
+  lignes.appendChild(d);
+}
+EXEMPLE.forEach(([r, l]) => ajouter(r, l));
+document.getElementById('ajouter').onclick = () => ajouter();
+document.querySelector('[name=famille]').onchange = () =>
+  document.querySelectorAll('.uni').forEach((u) => (u.value = UNITES[famille()]));
+
+document.getElementById('form').onsubmit = async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('erreur');
+  err.textContent = '';
+  const rows = [...lignes.children];
+  const unites = new Set(rows.map((r) => r.querySelector('.uni').value.trim()));
+  if (!rows.length) return (err.textContent = 'Ajoutez au moins un point de relevé.');
+  if (unites.size !== 1 || unites.has('')) return (err.textContent = 'Toutes les lignes doivent avoir la même unité.');
+  const body = Object.fromEntries(new FormData(e.target).entries());
+  body.unite = [...unites][0];
+  body.points = rows.map((r) => ({ reference: r.querySelector('.ref').value, lecture: r.querySelector('.lec').value }));
+  if (body.points.some((p) => p.reference === '' || p.lecture === '')) return (err.textContent = 'Complétez toutes les valeurs de relevé.');
+  const rep = await fetch('/api/certificats', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+  const data = await rep.json();
+  if (!rep.ok) return (err.textContent = data.erreur || 'Erreur.');
+  location.href = '/certificat.html?n=' + encodeURIComponent(data.numero);
+};
+</script>
+</body>
+</html>

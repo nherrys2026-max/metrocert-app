@@ -1,0 +1,14 @@
+{
+  "name": "metrocert-app",
+  "version": "0.1.0",
+  "description": "Relevés de mesure → certificat d'étalonnage HTML imprimable",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
