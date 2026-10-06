@@ -45,7 +45,28 @@ const signe = (x) => (x > 0 ? '+' : '') + nb(x);
     ', niveau de confiance d’environ 95 %). Erreur = lecture − référence.</p>' +
     '<p class="verdict" style="color:var(' + (c.conforme ? '--ok' : '--signal') + ')">' + verdict + '</p></section>' +
     '<div class="signature"><div>Établi par : ____________<br>Technicien d’étalonnage</div><div>Approuvé par : ____________<br>Responsable technique — signature</div></div>' +
+    '<section class="panel noprint"><h2>Contrôle par l’agent</h2>' +
+    '<p>Aide à la relecture — ne remplace pas la signature du responsable technique</p>' +
+    '<button type="button" id="controler">Contrôler avec l’agent MetroCert</button>' +
+    '<div id="resultat" role="status" style="margin-top:12px;white-space:pre-wrap"></div></section>' +
     '<div class="actions noprint"><button onclick="print()">Imprimer</button><a class="btn sec" href="/">Nouveau certificat</a></div>';
+  const btn = document.getElementById('controler');
+  const res = document.getElementById('resultat');
+  btn.onclick = async () => {
+    btn.disabled = true;
+    res.style.cssText = 'margin-top:12px;white-space:pre-wrap';
+    res.textContent = 'Contrôle en cours… (jusqu’à 30 s)';
+    try {
+      const r = await fetch('/api/controle', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ numero: c.numero }) });
+      const d = await r.json();
+      if (d.rapport) { res.textContent = d.rapport; res.style.cssText += ';background:#fff;border:1px solid var(--line);padding:12px'; }
+      else if (d.message) { res.textContent = d.message; res.style.cssText += ';color:var(--signal);font-weight:600'; }
+      else { res.textContent = d.erreur || 'Erreur.'; res.style.cssText += ';color:#B00020;font-weight:600'; }
+    } catch (e) {
+      res.textContent = 'Service temporairement indisponible.'; res.style.cssText += ';color:#B00020;font-weight:600';
+    }
+    btn.disabled = false;
+  };
 })();
 </script>
 </body>

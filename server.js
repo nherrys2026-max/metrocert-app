@@ -1,6 +1,9 @@
+require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const { evaluerPoints, conformiteGlobale } = require('./lib/calcul');
+const { texteCertificat } = require('./lib/texte');
+const { controler } = require('./lib/dify');
 
 const app = express();
 app.use(express.json({ limit: '100kb' }));
@@ -69,6 +72,13 @@ app.get('/api/certificats/:numero', (req, res) => {
   const c = certificats.get(req.params.numero);
   if (!c) return res.status(404).json({ erreur: 'Certificat introuvable.' });
   res.json(c);
+});
+
+app.post('/api/controle', async (req, res) => {
+  const c = certificats.get(String((req.body || {}).numero || ''));
+  if (!c) return res.status(404).json({ code: 'introuvable', erreur: 'Certificat introuvable.' });
+  const { statut, corps } = await controler(texteCertificat(c));
+  res.status(statut).json(corps);
 });
 
 if (require.main === module) {
