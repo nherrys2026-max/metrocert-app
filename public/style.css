@@ -37,7 +37,8 @@ button.sec, .btn.sec { background: transparent; color: var(--ink); border: 2px s
 .tableau { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; }
 th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: right; }
-th { background: var(--paper); font-family: var(--display); text-transform: uppercase; letter-spacing: .03em; }
+th { background: var(--paper); font-family: var(--display); text-transform: uppercase; letter-spacing: .03em; overflow-wrap: normal; word-break: normal; vertical-align: bottom; }
+td.ok, td.ko { overflow-wrap: normal; }
 td.ok { color: var(--ok); font-weight: 700; } td.ko { color: var(--signal); font-weight: 700; }
 dl { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: 6px 12px; margin: 0; }
 dt { font-weight: 600; color: var(--steel); } dd { margin: 0; }
@@ -47,6 +48,9 @@ dt { font-weight: 600; color: var(--steel); } dd { margin: 0; }
 @media (max-width: 480px) {
   .ligne { grid-template-columns: 1fr 1fr; }
   dl { grid-template-columns: minmax(0, 1fr); gap: 0; } dd { margin-bottom: 8px; }
+  .panel:has(.tableau) { padding: 12px 8px; }
+  th, td { padding: 4px 3px; font-size: .78rem; }
+  th { letter-spacing: 0; font-size: .7rem; }
 }
 @media print {
   body { background: #fff; } .noprint { display: none !important; }
