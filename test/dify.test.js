@@ -47,6 +47,8 @@ test('texteCertificat contient les relevés et respecte 5 000 caractères', () =
     lignes: [{ reference: 10, lecture: 10.13, erreur: 0.13, conforme: false }], conforme: false,
   };
   const t = texteCertificat(c);
+  assert.match(t, /Unité de mesure .*: bar/);
+  assert.match(t, /U = ± 0,02 bar \(k = 2\)/);
   assert.match(t, /référence 10 bar ; lecture 10,13 bar ; erreur 0,13 bar ; non conforme/);
   assert.ok(texteCertificat({ ...c, client: 'x'.repeat(9000) }).length <= 5000);
 });
