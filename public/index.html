@@ -29,6 +29,10 @@
           </select></label>
         <label>Date d’étalonnage <input name="date" type="date" required value="2026-10-05"></label>
         <label>Étalon de référence <input name="etalon" required value="Contrôleur de pression CP-17 (fictif), certificat n° ET-0042"></label>
+        <label>Lieu d’étalonnage <input name="lieu" required value="Laboratoire MetroCert Démo, Mbao, Dakar (fictif)"></label>
+        <label>Température ambiante (°C) <input name="temperature" type="number" step="any" required value="21.5"></label>
+        <label>Humidité relative (%) <input name="humidite" type="number" step="any" min="0" max="100" required value="48"></label>
+        <label>Règle de décision <input name="regle" required value="Conformité déclarée sans prise en compte de l’incertitude de mesure (à préciser par le laboratoire)."></label>
         <label>EMT (± erreur maximale tolérée) <input name="emt" type="number" step="any" min="0" required value="0.1"></label>
         <label>Incertitude élargie U (k = 2) <input name="incertitude" type="number" step="any" min="0" required value="0.02"></label>
       </div>

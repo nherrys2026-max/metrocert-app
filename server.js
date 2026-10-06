@@ -8,6 +8,10 @@ const { controler } = require('./lib/dify');
 const app = express();
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/lib/rendu.js', (req, res) => res.sendFile(path.join(__dirname, 'lib', 'rendu.js')));
+
+const REGLE_DEFAUT =
+  'Conformité déclarée sans prise en compte de l’incertitude de mesure (règle d’acceptation simple, à préciser par le laboratoire).';
 
 const FAMILLES = {
   pression: 'Comparaison directe à un étalon de pression (méthode EN 837, procédure interne PE-PR-01)',
@@ -38,6 +42,11 @@ app.post('/api/certificats', (req, res) => {
   if (!FAMILLES[b.famille]) return res.status(400).json({ erreur: 'Famille inconnue.' });
   if (!Number.isFinite(emt) || emt < 0 || !Number.isFinite(U) || U < 0)
     return res.status(400).json({ erreur: 'EMT ou incertitude invalide.' });
+  const temperature = Number(b.temperature);
+  const humidite = Number(b.humidite);
+  if (!texte(b.lieu)) return res.status(400).json({ erreur: 'Lieu d’étalonnage manquant.' });
+  if (b.temperature === '' || b.humidite === '' || !Number.isFinite(temperature) || !Number.isFinite(humidite) || humidite < 0 || humidite > 100)
+    return res.status(400).json({ erreur: 'Conditions ambiantes invalides (température en °C, humidité entre 0 et 100 %).' });
   if (!texte(b.unite)) return res.status(400).json({ erreur: 'Unité manquante.' });
   if (!points.length || points.some((p) => !Number.isFinite(p.reference) || !Number.isFinite(p.lecture)))
     return res.status(400).json({ erreur: 'Relevés invalides.' });
@@ -55,6 +64,10 @@ app.post('/api/certificats', (req, res) => {
     famille: b.famille,
     date: texte(b.date),
     etalon: texte(b.etalon),
+    lieu: texte(b.lieu),
+    temperature,
+    humidite,
+    regle: texte(b.regle) || REGLE_DEFAUT,
     unite: texte(b.unite),
     emt,
     incertitude: U,
