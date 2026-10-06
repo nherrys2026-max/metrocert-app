@@ -4,7 +4,7 @@ Des relevés de mesure au certificat d'étalonnage ISO/IEC 17025:2017 imprimable
 avec contrôle de complétude par l'agent Dify MetroCert. Projet GET 409 (Ivon NKOUNKOU),
 construit pendant l'atelier Claude Code (épisodes E07 à E14).
 
-- **En ligne** : voir [DEPLOIEMENT.md](DEPLOIEMENT.md) (Render, offre gratuite)
+- **En ligne** : https://metrocert-app.onrender.com (Render, offre gratuite ; voir [DEPLOIEMENT.md](DEPLOIEMENT.md))
 - **Lancer en local** : `npm install`, copier `.env.example` en `.env`, renseigner `DIFY_API_KEY`, puis `npm start` → http://localhost:3000
 - **Tests** : `npm test` (21 tests : calculs, rendu, routes, appel Dify simulé)
 
