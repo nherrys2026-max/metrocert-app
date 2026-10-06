@@ -10,9 +10,12 @@ const { entetes, limiteur, erreurs } = require('./lib/securite');
 
 const app = express();
 app.disable('x-powered-by');
+// Derrière l'hébergeur (Render), l'IP du visiteur arrive par le proxy : nécessaire pour le limiteur.
+if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
 app.use(entetes);
 app.use(express.json({ limit: '100kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+app.get('/sante', (req, res) => res.json({ ok: true }));
 app.get('/lib/rendu.js', (req, res) => res.sendFile(path.join(__dirname, 'lib', 'rendu.js')));
 
 const REGLE_DEFAUT =

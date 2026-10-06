@@ -1,0 +1,18 @@
+# Déploiement Render (Blueprint) : https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: metrocert-app
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /sante
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: TRUST_PROXY
+        value: "1"
+      - key: DIFY_API_KEY
+        sync: false   # secret : Render le demande à la création, il n'est jamais dans le dépôt
